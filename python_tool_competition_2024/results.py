@@ -73,13 +73,13 @@ class RatioResult:
 class RatioResults(abc.ABC):
     """A collection of result ratios."""
 
-    line_coverage: RatioResult
+    line_coverage: RatioResult | None
     """The calculated line coverages."""
 
-    branch_coverage: RatioResult
+    branch_coverage: RatioResult | None
     """The calculated branch coverages."""
 
-    mutation_analysis: RatioResult
+    mutation_analysis: RatioResult | None
     """The calculated mutation analysis."""
 
     generation_results: RatioResult
@@ -101,9 +101,9 @@ def get_result(
     *,
     target: Target,
     generation_result: TestGenerationResult,
-    line_coverage: RatioResult,
-    branch_coverage: RatioResult,
-    mutation_analysis: RatioResult,
+    line_coverage: RatioResult | None,
+    branch_coverage: RatioResult | None,
+    mutation_analysis: RatioResult | None,
 ) -> Result:
     """Build a result with the given results."""
     return Result(
@@ -161,6 +161,11 @@ def get_results(results: Iterable[Result]) -> Results:
 
 
 def _merge_ratios(
-    getter: Callable[[Result], RatioResult], results: tuple[Result, ...]
-) -> RatioResult:
-    return sum(map(getter, results), RatioResult(0, 0))
+    getter: Callable[[Result], RatioResult | None], results: tuple[Result, ...]
+) -> RatioResult | None:
+    result = RatioResult(0, 0)
+    for x in map(getter, results):
+        if x is None:
+            return None
+        result += x
+    return result

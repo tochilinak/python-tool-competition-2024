@@ -23,6 +23,7 @@ from rich.console import Console
 from rich.table import Table
 
 from ..results import Result, Results
+from .csv_reporter import maybe
 
 
 def report_cli(results: Results, console: Console) -> None:
@@ -39,10 +40,10 @@ def report_cli(results: Results, console: Console) -> None:
     table.add_section()
     table.add_row(
         "Total",
-        _to_percentage(results.generation_results.ratio),
-        _to_percentage(results.line_coverage.ratio),
-        _to_percentage(results.branch_coverage.ratio),
-        _to_percentage(results.mutation_analysis.ratio),
+        _to_percentage(maybe(results.generation_results, 'ratio')),
+        _to_percentage(maybe(results.line_coverage, 'ratio')),
+        _to_percentage(maybe(results.branch_coverage, 'ratio')),
+        _to_percentage(maybe(results.mutation_analysis, 'ratio')),
     )
     console.print(table)
 
@@ -51,9 +52,9 @@ def _result_to_table_row(result: Result) -> tuple[str, str, str, str, str]:
     return (
         str(result.target.relative_source),
         _get_generation_result_icon(result),
-        _to_percentage(result.line_coverage.ratio),
-        _to_percentage(result.branch_coverage.ratio),
-        _to_percentage(result.mutation_analysis.ratio),
+        _to_percentage(maybe(result.line_coverage, 'ratio')),
+        _to_percentage(maybe(result.branch_coverage, 'ratio')),
+        _to_percentage(maybe(result.mutation_analysis, 'ratio')),
     )
 
 
@@ -63,5 +64,7 @@ def _get_generation_result_icon(result: Result) -> str:
     return "[green]:heavy_check_mark:"
 
 
-def _to_percentage(percentage: float) -> str:
+def _to_percentage(percentage: float | None) -> str:
+    if percentage is None:
+        return "none"
     return f"{percentage * 100:0.2f} %"

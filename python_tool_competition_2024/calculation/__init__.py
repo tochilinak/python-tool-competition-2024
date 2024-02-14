@@ -50,7 +50,7 @@ def _calculate_result(
 ) -> Result:
     generation_result = calculate_generation_result(target, config)
     coverages = calculate_coverages(target, config)
-    mutation = calculate_mutation(target, config, mutation_calculator_name)
+    mutation = None # calculate_mutation(target, config, mutation_calculator_name)
     return get_result(
         target=target,
         generation_result=generation_result,

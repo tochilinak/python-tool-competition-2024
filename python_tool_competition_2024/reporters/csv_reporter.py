@@ -23,10 +23,10 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Any
 
 from ..config import Config
-from ..results import RatioResults, Results
+from ..results import RatioResults, Results, RatioResult
 
 
 def report_csv(results: Results, config: Config) -> None:
@@ -58,35 +58,27 @@ def report_csv(results: Results, config: Config) -> None:
         writer.writerow(_result_to_csv_row("total", results))
 
 
+def maybe(obj: RatioResult | None, field: str) -> Any:
+    if obj is None:
+        return None
+    return getattr(obj, field)
+
+
 def _result_to_csv_row(
     target: Path | Literal["total"], ratios: RatioResults
-) -> tuple[
-    Path | Literal["total"],
-    float,
-    int,
-    int,
-    float,
-    int,
-    int,
-    float,
-    int,
-    int,
-    float,
-    int,
-    int,
-]:
+) -> tuple[Any, ...]:
     return (
         target,
-        ratios.generation_results.ratio,
-        ratios.generation_results.total,
-        ratios.generation_results.successful,
-        ratios.line_coverage.ratio,
-        ratios.line_coverage.total,
-        ratios.line_coverage.successful,
-        ratios.branch_coverage.ratio,
-        ratios.branch_coverage.total,
-        ratios.branch_coverage.successful,
-        ratios.mutation_analysis.ratio,
-        ratios.mutation_analysis.total,
-        ratios.mutation_analysis.successful,
+        maybe(ratios.generation_results, 'ratio'),
+        maybe(ratios.generation_results, 'total'),
+        maybe(ratios.generation_results, 'successful'),
+        maybe(ratios.line_coverage, 'ratio'),
+        maybe(ratios.line_coverage, 'total'),
+        maybe(ratios.line_coverage, 'successful'),
+        maybe(ratios.branch_coverage, 'ratio'),
+        maybe(ratios.branch_coverage, 'total'),
+        maybe(ratios.branch_coverage, 'successful'),
+        maybe(ratios.mutation_analysis, 'ratio'),
+        maybe(ratios.mutation_analysis, 'total'),
+        maybe(ratios.mutation_analysis, 'successful'),
     )
